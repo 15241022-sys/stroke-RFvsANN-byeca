@@ -4,7 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Dashboard Visualisasi Dataset Stroke</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.35.2/plotly.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/plotly.js-dist-min@2.35.2/plotly.min.js"></script>
+<script>window.Plotly||document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.35.2/plotly.min.js"><\/script>')</script>
 <style>
 :root{--bg:#f4f6fa;--card:#fff;--tx:#1f2937;--mu:#6b7280;--bd:#e5e7eb;--pr:#2563eb}
 *{box-sizing:border-box}
@@ -55,6 +56,7 @@ const CFG={responsive:true,displaylogo:false};
 const pear=(a,b)=>{let x=[],y=[];a.forEach((v,i)=>{if(v!=null&&b[i]!=null){x.push(v);y.push(b[i])}});const n=x.length,mx=x.reduce((s,v)=>s+v,0)/n,my=y.reduce((s,v)=>s+v,0)/n;let sxy=0,sxx=0,syy=0;for(let i=0;i<n;i++){sxy+=(x[i]-mx)*(y[i]-my);sxx+=(x[i]-mx)**2;syy+=(y[i]-my)**2}return sxy/Math.sqrt(sxx*syy)};
 function data(){const s=$("fS").value,g=$("fG").value;return D.filter(r=>(s=="all"||r.stroke==s)&&(g=="all"||r.gender==g))}
 function draw(){
+if(!window.Plotly){document.querySelector("header p").textContent="Gagal memuat library Plotly. Periksa koneksi internet lalu muat ulang halaman.";return}
 const d=data(),st=d.filter(r=>r.stroke==1).length;
 const ages=d.map(r=>r.age),m=ages.reduce((a,b)=>a+b,0)/(ages.length||1);
 $("kpi").innerHTML=[["Jumlah data",d.length],["Kasus stroke",st],["Persentase stroke",(d.length?st/d.length*100:0).toFixed(1)+"%"],["Rata-rata usia",m.toFixed(1)+" th"]].map(([a,b])=>`<div class="k"><b>${b}</b><span>${a}</span></div>`).join("");
@@ -66,7 +68,7 @@ Plotly.react("box",grp.map(([k,a])=>({type:"box",y:a.map(r=>r[bv]).filter(v=>v!=
 const keys=Object.keys(CORR),z=keys.map(a=>keys.map(b=>+pear(d.map(r=>r[a]),d.map(r=>r[b])).toFixed(2)));
 Plotly.react("heat",[{type:"heatmap",z,x:keys.map(k=>CORR[k]),y:keys.map(k=>CORR[k]),zmin:-1,zmax:1,colorscale:"RdBu",reversescale:true,text:z,texttemplate:"%{text}",hoverongaps:false}],{...L,margin:{t:10,r:10,b:90,l:110},yaxis:{autorange:"reversed"}},CFG);
 const sx=$("sX").value,sy=$("sY").value;
-Plotly.react("sc",grp.map(([k,a])=>{const p=a.filter(r=>r[sx]!=null&&r[sy]!=null);return{type:"scattergl",mode:"markers",x:p.map(r=>r[sx]),y:p.map(r=>r[sy]),name:LBL[k],marker:{color:COL[k],size:5,opacity:.55}}}),{...L,xaxis:{title:NUM[sx]},yaxis:{title:NUM[sy]}},CFG);
+Plotly.react("sc",grp.map(([k,a])=>{const p=a.filter(r=>r[sx]!=null&&r[sy]!=null);return{type:"scatter",mode:"markers",x:p.map(r=>r[sx]),y:p.map(r=>r[sy]),name:LBL[k],marker:{color:COL[k],size:5,opacity:.55}}}),{...L,xaxis:{title:NUM[sx]},yaxis:{title:NUM[sy]}},CFG);
 }
 ["fS","fG","hV","bV","sX","sY"].forEach(i=>$(i).addEventListener("change",draw));
 draw();
